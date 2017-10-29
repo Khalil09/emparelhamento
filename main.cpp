@@ -1,8 +1,11 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 
 using namespace std;
 
 #define iv pair<int, vector<int>>
+#define it pair<int, int>
+
+
 
 class Prof{
     private:
@@ -29,7 +32,7 @@ iv& Prof::operator[](int index){
 }
 
 void Prof::add_formacao(int no, int f){
-    profs[no].first = f;
+    profs[no-1].first = f;
 }
 
 void Prof::add_aresta(int no1, int no2){
@@ -80,6 +83,94 @@ void Escola::add_preferencia(int no, int pre){
     escolas[no-1] = pre;
 }
 
+class Emparelho{
+    private:
+        int professor_livre(int alocado[100]);
+        vector<it> em;
+    public:
+        Emparelho(int size);
+        void emparelha(Escola e, Prof p);
+        void print();
+        it& operator[](int index);    
+};
+
+Emparelho::Emparelho(int size){
+    for(int i = 0; i < size; i++){
+        it a;
+        a.first = -1;
+        a.second = -1;
+        em.push_back(a);
+    }
+}
+
+int Emparelho::professor_livre(int alocado[100]){
+    for(int i = 0; i < 100; i++){
+        if(alocado[i] == 0){
+            return i;
+        }
+    }
+    return -1;
+}
+
+void Emparelho::emparelha(Escola e, Prof p){
+    int alocado[100];
+    int k, achou, j;
+    for(int i = 0; i < 100 ; i++){
+        alocado[i] = 0;
+    }
+    while(professor_livre(alocado) != -1){
+        j = professor_livre(alocado);
+        k = 0;
+        achou = 0;
+        while(achou == 0){
+            if(p[j].first >= e[p[j].second[k]]){
+                cout <<"+++"<< j <<endl;
+                if(em[p[j].second[k]].first == -1 || em[p[j].second[k]].first == -1){
+                    if(em[p[j].second[k]].first == -1){
+                        em[p[j].second[k]].first = j;
+                    }
+                    else{
+                        em[p[j].second[k]].second = j;
+                    }
+                    alocado[j] = 1;
+                    achou = 1;
+                }
+                else{
+                    if(p[em[p[j].second[k]].first].first <= p[em[p[j].second[k]].second].first){
+                        if(p[em[p[j].second[k]].first].first < p[j].first){
+                            alocado[j] = 1;
+                            alocado[em[p[j].second[k]].first] = 0;
+                            em[p[j].second[k]].first = j;
+                            achou = 1;
+                        }
+                    }
+                    else{
+                        if(p[em[p[j].second[k]].second].first < p[j].first){
+                            alocado[j] = 1;
+                            alocado[em[p[j].second[k]].second] = 0;
+                            em[p[j].second[k]].second = j;
+                            achou = 1;
+                        }   
+                    }
+                }
+            }
+            k++;
+        }
+    }
+}
+
+it& Emparelho::operator[](int index){
+    if(index > em.size() || index < 0)
+        throw std::out_of_range("Index out of range");
+    return em[index];
+}
+
+void Emparelho::print(){
+    for(int i = 0; i < 50; i++){
+        cout <<"Escola-"<< i + 1 << "---> professor"<< em[i].first + 1 <<" professor"<< em[i].second + 1 << endl;
+    }
+}
+
 int main(){
     int formacoes, prof, escola, preferecia;
     int esc[5];
@@ -88,6 +179,7 @@ int main(){
 
     Prof p(100);
     Escola e(50);
+    Emparelho em(50);
 
     fp = fopen("professores.txt", "r");
 
@@ -120,5 +212,6 @@ int main(){
     fclose(fp);
 
     e.print();
-
+    em.emparelha(e,p);
+    em.print();
 }
