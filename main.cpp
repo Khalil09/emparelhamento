@@ -105,7 +105,7 @@ Emparelho::Emparelho(int size){
 
 int Emparelho::professor_livre(int alocado[100]){
     for(int i = 0; i < 100; i++){
-        if(alocado[i][0] == 0){
+        if(alocado[i] == 0){
             return i;
         }
     }
@@ -113,20 +113,66 @@ int Emparelho::professor_livre(int alocado[100]){
 }
 
 void Emparelho::emparelha(Escola e, Prof p){
-    int alocado[100][6];
-    int j;
+    int alocado[100];
+    int j, k, achou;
     for(int i = 0; i < 100 ; i++){
-        alocado[i][0] = 0;
-        alocado[i][1] = 0;
-        alocado[i][2] = 0;
-        alocado[i][3] = 0;
-        alocado[i][4] = 0;
-        alocado[i][5] = 0;
+        alocado[i] = 0;
     }
-    j = professor_livre(alocado);
-    while(j != -1 && (alocado[j][1] == 0 || alocado[j][2] == 0 || alocado[j][3] == 0 || alocado[j][4] == 0 || alocado[j][5] == 0)){
-        w = j
+    while(professor_livre(alocado) != -1){
         j = professor_livre(alocado);
+        achou = 0;
+        k = 0;
+        while(achou == 0){
+            if(e[p[j].second[k]] <= p[j].first){    
+                if(em[p[j].second[k]].first == -1 || em[p[j].second[k]].second == -1){
+                    if(em[p[j].second[k]].first == -1){
+                        em[p[j].second[k]].first = j;
+                    }
+                    else{
+                        em[p[j].second[k]].second = j;
+                    }
+                    achou = 1;
+                    alocado[j] = 1;
+                }
+                else{
+                    if(p[em[p[j].second[k]].first].first <= p[em[p[j].second[k]].second].first ){
+                        if(p[em[p[j].second[k]].first].first < p[j].first){
+                            alocado[em[p[j].second[k]].first] = 0;
+                            em[p[j].second[k]].first = j;
+                            alocado[j] = 1;
+                            achou = 1;
+                        }    
+                    }
+                    else{
+                        if(p[em[p[j].second[k]].second].first < p[j].first){
+                            alocado[em[p[j].second[k]].second] = 0;
+                            em[p[j].second[k]].second = j;
+                            alocado[j] = 1;
+                            achou = 1;
+                        }    
+                    }
+                }
+            }    
+            k++;
+            if(k == 5 && achou == 0){
+                for(int l = 0; l < 50; l++){
+                    if(em[l].first == -1){
+                        em[l].first = j;
+                        alocado[j] = 1;
+                        achou = 1;
+                        break;
+                    }
+                    else{
+                        if(em[l].second == -1){
+                            em[l].second = j;
+                            alocado[j] = 1;
+                            achou = 1;
+                            break;
+                        }
+                    }        
+                }
+            }
+        }
     }
 }
 
